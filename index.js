@@ -15,7 +15,8 @@ async function run() {
     try {
         await client.connect();
         const productsCollection = client.db('SyndicutX_Shop').collection('products');
-
+        const ordersCollection = client.db('SyndicutX_Shop').collection('orders');
+        const messagesCollection = client.db('SyndicutX_Shop').collection('messages');
         //Authentication API
         app.post('/login', async (req, res) => {
             const user = req.body;
@@ -23,9 +24,8 @@ async function run() {
                 expiresIn: '1d'
             });
             res.send({ accessToken });
-        })
-
-        // Services API
+        });
+        // Services API for Products
         app.get('/products', async (req, res) => {
             const query = {};
             const cursor = productsCollection.find(query);
@@ -37,7 +37,7 @@ async function run() {
             const data = await productsCollection.insertOne(product);
             res.send(data);
 
-        })
+        });
         app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -50,6 +50,29 @@ async function run() {
             const result = await productsCollection.deleteOne(query);
             res.send(result);
         });
+        //API for orders
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const data = await ordersCollection.insertOne(order);
+            res.send(data);
+        });
+        app.get('/orders', async (req, res) => {
+            const query = {};
+            const cursor = ordersCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        app.get('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const order = await ordersCollection.findOne(query);
+            res.send(order);
+        },[])
+        //API for message
+        app.post('/message/:email', async (req, res) => {
+            //I will do it later
+        })
+
     } finally {
         
     }
